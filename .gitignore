@@ -1,0 +1,32 @@
+# STM32 / embedded build artifacts
+build/
+*.o
+*.elf
+*.hex
+*.bin
+*.map
+*.lst
+*.d
+*.list
+*.su
+
+# STM32CubeIDE / CubeMX project cruft (keep if you want the .ioc tracked)
+Debug/
+Release/
+*.launch
+
+# LaTeX build artifacts (lab reports)
+*.aux
+*.log
+*.out
+*.toc
+*.synctex.gz
+*.fls
+*.fdb_latexmk
+*.bbl
+*.blg
+
+# OS / editor cruft
+.DS_Store
+Thumbs.db
+*.swp
