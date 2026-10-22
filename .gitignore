@@ -1,0 +1,18 @@
+# Build output
+Debug/
+Release/
+build/
+*.o
+*.d
+*.su
+*.elf
+*.bin
+*.hex
+*.map
+*.list
+
+# IDE / CubeMX workspace state
+.metadata/
+.settings/
+.mxproject
+*.bak
