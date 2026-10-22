@@ -1,7 +1,7 @@
-# Build output
+# STM32 / embedded build artifacts
+build/
 Debug/
 Release/
-build/
 *.o
 *.d
 *.su
@@ -9,10 +9,28 @@ build/
 *.bin
 *.hex
 *.map
+*.lst
 *.list
 
-# IDE / CubeMX workspace state
+# IDE / CubeMX workspace state (the .ioc IS tracked)
 .metadata/
 .settings/
 .mxproject
+*.launch
 *.bak
+
+# LaTeX build artifacts (lab reports)
+*.aux
+*.log
+*.out
+*.toc
+*.synctex.gz
+*.fls
+*.fdb_latexmk
+*.bbl
+*.blg
+
+# OS / editor cruft
+.DS_Store
+Thumbs.db
+*.swp
