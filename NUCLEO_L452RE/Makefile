@@ -36,6 +36,16 @@ BUILD_DIR = build
 ######################################
 # C sources
 C_SOURCES =  \
+Core/Src/vcnl4040.c \
+Core/Src/ssd1306.c \
+Core/Src/ssd1306_fonts.c \
+Core/Src/ssd1306_tests.c \
+Core/Src/oled_term.c \
+Core/Src/shell.c \
+Core/Src/ArduCAM.c \
+Core/Src/delay.c \
+Core/Src/spi.c \
+Core/Src/cam_app.c \
 Core/Src/main.c \
 Core/Src/stm32l4xx_it.c \
 Core/Src/stm32l4xx_hal_msp.c \

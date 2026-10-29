@@ -22,6 +22,8 @@
 #include "usbd_cdc_if.h"
 
 /* USER CODE BEGIN INCLUDE */
+#include "shell.h"
+#include <string.h>
 
 /* USER CODE END INCLUDE */
 
@@ -94,6 +96,8 @@ uint8_t UserRxBufferFS[APP_RX_DATA_SIZE];
 uint8_t UserTxBufferFS[APP_TX_DATA_SIZE];
 
 /* USER CODE BEGIN PRIVATE_VARIABLES */
+/* 115200 8N1 - CDC ignores it, but terminals ask for it back */
+static uint8_t lineCoding[7] = { 0x00, 0xC2, 0x01, 0x00, 0x00, 0x00, 0x08 };
 
 /* USER CODE END PRIVATE_VARIABLES */
 
@@ -220,15 +224,19 @@ static int8_t CDC_Control_FS(uint8_t cmd, uint8_t* pbuf, uint16_t length)
   /* 6      | bDataBits  |   1   | Number Data bits (5, 6, 7, 8 or 16).          */
   /*******************************************************************************/
     case CDC_SET_LINE_CODING:
-
+      memcpy(lineCoding, pbuf, sizeof(lineCoding));
     break;
 
     case CDC_GET_LINE_CODING:
-
+      memcpy(pbuf, lineCoding, sizeof(lineCoding));
     break;
 
     case CDC_SET_CONTROL_LINE_STATE:
-
+    {
+      /* wValue bit0 = DTR: set when a terminal opens the COM port */
+      USBD_SetupReqTypedef *req = (USBD_SetupReqTypedef *)pbuf;
+      Shell_PortOpenedISR((req->wValue & 0x0001) != 0);
+    }
     break;
 
     case CDC_SEND_BREAK:
@@ -261,6 +269,10 @@ static int8_t CDC_Control_FS(uint8_t cmd, uint8_t* pbuf, uint16_t length)
 static int8_t CDC_Receive_FS(uint8_t* Buf, uint32_t *Len)
 {
   /* USER CODE BEGIN 6 */
+  /* Interrupt context: only copy the bytes into the shell's ring buffer.
+   * Parsing and CDC_Transmit_FS() happen in the main loop (Shell_Poll). */
+  Shell_RxISR(Buf, *Len);
+
   USBD_CDC_SetRxBuffer(&hUsbDeviceFS, &Buf[0]);
   USBD_CDC_ReceivePacket(&hUsbDeviceFS);
   return (USBD_OK);

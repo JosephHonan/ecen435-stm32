@@ -22,6 +22,13 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include "usbd_cdc_if.h"
+#include "shell.h"
+#include "vcnl4040.h"
+#include "ssd1306.h"
+#include "ssd1306_tests.h"
+#include "oled_term.h"
+#include "cam_app.h"
 
 /* USER CODE END Includes */
 
@@ -52,6 +59,7 @@ TIM_HandleTypeDef htim2;
 UART_HandleTypeDef huart4;
 
 /* USER CODE BEGIN PV */
+extern USBD_HandleTypeDef hUsbDeviceFS;
 
 /* USER CODE END PV */
 
@@ -108,6 +116,25 @@ int main(void)
   MX_UART4_Init();
   MX_USB_DEVICE_Init();
   /* USER CODE BEGIN 2 */
+  /* Devices on I2C1: VCNL4040 (0x60) and SSD1306 (0x3C). Both are optional at
+   * boot - the shell reports what is missing and retries on demand. */
+  /* sensor needs a few ms after power-up before it answers - retry briefly */
+  for (int tries = 0; tries < 10 && VCNL4040_Init(&hi2c1) != HAL_OK; tries++) {
+    HAL_Delay(10);
+  }
+  Camera_Init();                          /* ArduCAM Mini 2MP, 160x120 JPEG */
+
+  if (OLEDTerm_Init()) {
+    OLEDTerm_Write("ECEN-435 Lab 5\n");
+    OLEDTerm_Write(VCNL4040_IsConnected() ? "VCNL4040 ok\n" : "VCNL4040 missing\n");
+    OLEDTerm_Write(Camera_IsReady() ? "camera ok\n" : "camera missing\n");
+    OLEDTerm_Write("USB shell ready\n");
+    OLEDTerm_Flush();
+  }
+
+  Shell_Init();
+  Camera_RegisterCommands();
+  USBD_CDC_ReceivePacket(&hUsbDeviceFS);   /* start receiving USB packets */
 
   /* USER CODE END 2 */
 
@@ -118,6 +145,7 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
+    Shell_Poll();
   }
   /* USER CODE END 3 */
 }
